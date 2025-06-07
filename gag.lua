@@ -200,7 +200,11 @@ local function setupShopChecks()
 				local ok = pcall(function()
 					if availableNames[gearName] then
 						ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyGearStock"):FireServer(gearName)
-						Rayfield:Notify("Bought " .. gearName)
+						Rayfield:Notify({
+							Title = "Gear in Stock",
+							Content = "Bought " .. gearName,
+							Time = 0.5,
+						})
 					end
 				end)
 				if not ok then
@@ -214,7 +218,11 @@ local function setupShopChecks()
 				local ok = pcall(function()
 					if availableNames[seedName] then
 						ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuySeedStock"):FireServer(seedName)
-						Rayfield:Notify("Bought " .. seedName)
+						Rayfield:Notify({
+							Title = "Seed in Stock",
+							Content = "Bought " .. seedName,
+							Time = 0.5,
+						})
 					end
 				end)
 				if not ok then
@@ -239,7 +247,11 @@ local function setupShopChecks()
 							for _, selectedEgg in pairs(selectedEggs) do
 								if eggNameText == selectedEgg then
 									ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyPetEgg"):FireServer(i)
-									Rayfield:Notify("Bought " .. selectedEgg)
+									Rayfield:Notify({
+										Title = "Egg in Stock",
+										Content = "Bought " .. selectedEgg,
+										Time = 0.5,
+									})
 								end
 							end
 						end
@@ -294,7 +306,7 @@ local function init()
 	Window:CreateTab("Discord"):CreateLabel("Join https://discord.gg/wB34Qa4zbr for support!")
 
 	for _, connection in pairs(getconnections(game:GetService("Players").LocalPlayer.Idled)) do
-    		connection:Disable()
+		connection:Disable()
 	end
 
 	noclip()
