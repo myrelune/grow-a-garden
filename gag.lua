@@ -217,17 +217,14 @@ local function setupShopChecks()
 		end
 
 		if autoBuyEggs then
-			local ok, eggLocations = pcall(function()
-				return workspace
-					:WaitForChild("NPCS")
-					:WaitForChild("Pet Stand")
-					:WaitForChild("EggLocations")
-					:GetChildren()
+			local ok, eggLocationsFolder = pcall(function()
+				return workspace:WaitForChild("NPCS"):WaitForChild("Pet Stand"):WaitForChild("EggLocations")
 			end)
 			if not ok then
-				warn("[FarmHelper] Failed to get egg locations:", eggLocations)
+				warn("[FarmHelper] Failed to get egg locations folder:", eggLocationsFolder)
 				return
 			end
+			local eggLocations = eggLocationsFolder:GetChildren()
 
 			for i, location in ipairs(eggLocations) do
 				local success, err = pcall(function()
@@ -243,8 +240,8 @@ local function setupShopChecks()
 
 					for _, selectedEgg in pairs(selectedEggs) do
 						if eggNameText == selectedEgg then
-							-- Find the corresponding egg model
-							local eggModel = eggLocations:FindFirstChild(eggNameText)
+							-- Find the corresponding egg model using the folder instance
+							local eggModel = eggLocationsFolder:FindFirstChild(eggNameText)
 							if not eggModel then
 								warn("[FarmHelper] Could not find egg model for", eggNameText)
 								return
