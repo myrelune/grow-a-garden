@@ -161,21 +161,6 @@ local function getAvailableItems()
 	return availableItems
 end
 
-local function getEggLocationNumber(eggName)
-	local eggLocations = workspace:WaitForChild("NPCS"):WaitForChild("Pet Stand"):WaitForChild("EggLocations")
-	local locations = eggLocations:GetChildren()
-
-	for i, location in ipairs(locations) do
-		if location:IsA("BasePart") then
-			local eggNameText = location.PetInfo.SurfaceGui.EggNameTextLabel.Text
-			if eggNameText == eggName then
-				return i
-			end
-		end
-	end
-	return nil
-end
-
 local function setupShopChecks()
 	local lastCheck = 0
 	RunService.Heartbeat:Connect(function()
@@ -246,12 +231,35 @@ local function setupShopChecks()
 							local eggNameText = location.PetInfo.SurfaceGui.EggNameTextLabel.Text
 							for _, selectedEgg in pairs(selectedEggs) do
 								if eggNameText == selectedEgg then
-									ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyPetEgg"):FireServer(i)
-									Rayfield:Notify({
-										Title = "Egg in Stock",
-										Content = "Bought " .. selectedEgg,
-										Time = 0.5,
-									})
+									-- Find the corresponding egg model
+									local eggModel = eggLocations:FindFirstChild(eggNameText)
+									if eggModel then
+										local isVisible = true
+
+										-- Check all parts of the egg model and its children
+										local function checkTransparency(obj)
+											if obj:IsA("BasePart") and obj.Transparency > 0 then
+												isVisible = false
+												return
+											end
+											for _, child in pairs(obj:GetChildren()) do
+												checkTransparency(child)
+											end
+										end
+
+										checkTransparency(eggModel)
+
+										if isVisible then
+											ReplicatedStorage:WaitForChild("GameEvents")
+												:WaitForChild("BuyPetEgg")
+												:FireServer(i)
+											Rayfield:Notify({
+												Title = "Egg in Stock",
+												Content = "Bought " .. selectedEgg,
+												Time = 0.5,
+											})
+										end
+									end
 								end
 							end
 						end
