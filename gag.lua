@@ -293,6 +293,10 @@ local function init()
 
 	Window:CreateTab("Discord"):CreateLabel("Join https://discord.gg/wB34Qa4zbr for support!")
 
+	for _, connection in pairs(getconnections(game:GetService("Players").LocalPlayer.Idled)) do
+    		connection:Disable()
+	end
+
 	noclip()
 	setupShopChecks()
 	Rayfield:LoadConfiguration()
