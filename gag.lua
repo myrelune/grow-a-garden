@@ -48,6 +48,11 @@ local Window = Rayfield:CreateWindow({
 	},
 	DisableRayfieldPrompts = true,
 	ToggleUIKeybind = "U",
+	Discord = {
+		Enabled = true,
+		Invite = "wB34Qa4zbr",
+		RememberJoins = true,
+	},
 })
 
 local ShopTab = Window:CreateTab("Shop", "store")
@@ -285,6 +290,8 @@ local function init()
 			LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
 		end
 	end)
+
+	Window:CreateTab("Discord"):CreateLabel("Join https://discord.gg/wB34Qa4zbr for support!")
 
 	noclip()
 	setupShopChecks()
