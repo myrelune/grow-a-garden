@@ -224,52 +224,61 @@ local function setupShopChecks()
 					:WaitForChild("EggLocations")
 					:GetChildren()
 			end)
-			if ok then
-				for i, location in ipairs(eggLocations) do
-					local success = pcall(function()
-						if location:IsA("BasePart") then
-							local eggNameText = location.PetInfo.SurfaceGui.EggNameTextLabel.Text
-							for _, selectedEgg in pairs(selectedEggs) do
-								if eggNameText == selectedEgg then
-									-- Find the corresponding egg model
-									local eggModel = eggLocations:FindFirstChild(eggNameText)
-									if eggModel then
-										local isVisible = true
+			if not ok then
+				warn("[FarmHelper] Failed to get egg locations:", eggLocations)
+				return
+			end
 
-										-- Check all parts of the egg model and its children
-										local function checkTransparency(obj)
-											if obj:IsA("BasePart") and obj.Transparency > 0 then
-												isVisible = false
-												return
-											end
-											for _, child in pairs(obj:GetChildren()) do
-												checkTransparency(child)
-											end
-										end
+			for i, location in ipairs(eggLocations) do
+				local success, err = pcall(function()
+					if not location:IsA("BasePart") then
+						return
+					end
 
-										checkTransparency(eggModel)
+					local eggNameText = location.PetInfo.SurfaceGui.EggNameTextLabel.Text
+					if not eggNameText then
+						warn("[FarmHelper] No egg name text found at location", i)
+						return
+					end
 
-										if isVisible then
-											ReplicatedStorage:WaitForChild("GameEvents")
-												:WaitForChild("BuyPetEgg")
-												:FireServer(i)
-											Rayfield:Notify({
-												Title = "Egg in Stock",
-												Content = "Bought " .. selectedEgg,
-												Time = 0.5,
-											})
-										end
-									end
+					for _, selectedEgg in pairs(selectedEggs) do
+						if eggNameText == selectedEgg then
+							-- Find the corresponding egg model
+							local eggModel = eggLocations:FindFirstChild(eggNameText)
+							if not eggModel then
+								warn("[FarmHelper] Could not find egg model for", eggNameText)
+								return
+							end
+
+							local isVisible = true
+
+							-- Check all parts of the egg model and its children
+							local function checkTransparency(obj)
+								if obj:IsA("BasePart") and obj.Transparency > 0 then
+									isVisible = false
+									return
+								end
+								for _, child in pairs(obj:GetChildren()) do
+									checkTransparency(child)
 								end
 							end
+
+							checkTransparency(eggModel)
+
+							if isVisible then
+								ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyPetEgg"):FireServer(i)
+								Rayfield:Notify({
+									Title = "Egg in Stock",
+									Content = "Bought " .. selectedEgg,
+									Time = 0.5,
+								})
+							end
 						end
-					end)
-					if not success then
-						warn("[FarmHelper] Failed to buy egg at location", i)
 					end
+				end)
+				if not success then
+					warn("[FarmHelper] Failed to process egg at location", i, "Error:", err)
 				end
-			else
-				warn("[FarmHelper] Failed to get egg locations")
 			end
 		end
 	end)
